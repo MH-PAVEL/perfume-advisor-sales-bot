@@ -152,17 +152,87 @@ The server will start on `http://localhost:5500`
 ### **System Components**
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Flask API     │    │   AI Services   │
-│   (React/Vue)   │◄──►│   (Routes)      │◄──►│   (OpenAI/Groq) │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                    Next.js Frontend Application                 │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ │
+│  │ Landing     │ │ Home        │ │ Dashboard   │ │ Journal     │ │
+│  │ Page        │ │ Page        │ │ Interface   │ │ System      │ │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   MongoDB       │    │   Pinecone      │    │   Shopify       │
-│   (Conversations│    │   (Vector DB)   │    │   (E-commerce)  │
-│   & Journals)   │    │                 │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                    Flask Backend API Service                    │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ │
+│  │ Landing     │ │ Home        │ │ Dashboard   │ │ Journal     │ │
+│  │ Routes      │ │ Routes      │ │ Routes      │ │ Routes      │ │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    AI & External Services                       │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ │
+│  │ OpenAI      │ │ Groq API    │ │ Pinecone    │ │ Shopify     │ │
+│  │ (GPT Models)│ │ (LLM)       │ │ (Vector DB) │ │ (E-commerce)│ │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Data Storage Layer                           │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │ MongoDB (Conversations, Journals, User Data)               │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### **Service Communication Flow**
+
+```
+Next.js Frontend
+    │
+    ├── Landing Page Features
+    │   ├── Initial perfume recommendations
+    │   ├── User preference collection
+    │   └── Conversation initiation
+    │
+    ├── Home Page Features
+    │   ├── Extended conversations
+    │   ├── Recommendation refinement
+    │   └── Context-aware responses
+    │
+    ├── Dashboard Features
+    │   ├── User-specific conversations
+    │   ├── Persistent chat history
+    │   └── Personalized recommendations
+    │
+    └── Journal Features
+        ├── Product experience tracking
+        ├── Life reflection sessions
+        └── AI-powered insights
+
+Flask Backend API
+    │
+    ├── Request Processing
+    │   ├── Input validation
+    │   ├── User intent detection
+    │   └── Context management
+    │
+    ├── AI Integration
+    │   ├── LLM conversation handling
+    │   ├── Vector search coordination
+    │   └── Recommendation generation
+    │
+    ├── Data Management
+    │   ├── MongoDB operations
+    │   ├── Conversation persistence
+    │   └── Journal data handling
+    │
+    └── E-commerce Sync
+        ├── Shopify product registration
+        ├── Inventory management
+        └── Background processing
 ```
 
 ### **Key Design Patterns**
