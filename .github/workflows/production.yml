@@ -1,0 +1,64 @@
+name: Deploy Flask Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: evoke-server
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use default
+
+            cd ~/evoke/flask-ai
+            git pull origin main
+            source venv/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements.txt
+
+            # Kill any process using port 5500 to avoid conflict
+            echo "Killing any process using port 5500..."
+            fuser -k 5500/tcp || true
+
+
+
+            # Delete existing PM2 process
+            echo "Deleting existing PM2 process..."
+            pm2 delete flask-app || true
+
+            # Wait for port 5500 to be freed
+            echo "Waiting for port 5500 to be released..."
+            while lsof -i:5500 -sTCP:LISTEN -t >/dev/null; do
+              echo "Port still in use, sleeping 1s..."
+              sleep 1
+            done
+
+            # Restart Flask application using PM2
+            echo "Starting Flask application using PM2..."
+            pm2 start gunicorn --name flask-app --interpreter python3 --watch --update-env --max-memory-restart 2048M -- --timeout 100 -w 8 -b 0.0.0.0:5500 run:app
+
+            # Save PM2 state to persist restarts
+            pm2 save
+            # Ensure PM2 restarts on server reboot
+            pm2 startup
+
+            # Restart Nginx
+            sudo systemctl restart nginx
+            sleep 5
+            # Test Nginx
+            curl http://127.0.0.1:5500/flask/
