@@ -17,7 +17,7 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: evoke-server
+          username: ${{ secrets.VPS_USER_NAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
@@ -25,7 +25,7 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             nvm use default
 
-            cd ~/evoke/flask-ai
+            cd ~/server-flask
             git pull origin main
             source venv/bin/activate
             pip install --upgrade pip
@@ -39,7 +39,7 @@ jobs:
 
             # Delete existing PM2 process
             echo "Deleting existing PM2 process..."
-            pm2 delete flask-app || true
+            pm2 delete server-flask || true
 
             # Wait for port 5500 to be freed
             echo "Waiting for port 5500 to be released..."
@@ -50,7 +50,7 @@ jobs:
 
             # Restart Flask application using PM2
             echo "Starting Flask application using PM2..."
-            pm2 start gunicorn --name flask-app --interpreter python3 --watch --update-env --max-memory-restart 2048M -- --timeout 100 -w 8 -b 0.0.0.0:5500 run:app
+            pm2 start gunicorn --name server-flask --interpreter python3 --watch --update-env --max-memory-restart 2048M -- --timeout 100 -w 8 -b 0.0.0.0:5500 run:app
 
             # Save PM2 state to persist restarts
             pm2 save
